@@ -15,7 +15,6 @@ class TTS_Core():
         # Play the generated speech directly through speakers
         playsound.playsound("output.mp3")
 
-        # Clean up by deleting the temporary audio file
         os.remove("output.mp3")
 
 if __name__ == '__main__':
