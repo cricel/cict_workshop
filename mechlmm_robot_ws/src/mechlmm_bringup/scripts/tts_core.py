@@ -1,22 +1,33 @@
-from gtts import gTTS
-import os
-import playsound
+import asyncio
+import aiohttp
 
-class TTS_Core():
-    # def __init__(self):
-        
-    def tts_play(self, input_text):
-        # Initialize the gTTS object with the text
-        tts = gTTS(input_text)
+async def send_request(session, user_input):
+    """
+    Send an asynchronous API request with the given user input.
+    """
+    url = "https://api.example.com/endpoint"  # Replace with your actual API endpoint
+    data = {"input": user_input}  # Adjust payload format as required
 
-        # Save the generated speech as an audio file
-        tts.save("output.mp3")
+    try:
+        async with session.post(url, json=data) as response:
+            result = await response.json()  # Parse JSON response
+            print(f"Response for '{user_input}': {result}")
+    except Exception as e:
+        print(f"Error processing '{user_input}': {e}")
 
-        # Play the generated speech directly through speakers
-        playsound.playsound("output.mp3")
+async def main():
+    """
+    Main asynchronous loop to take user input and send API requests.
+    """
+    async with aiohttp.ClientSession() as session:
+        while True:
+            user_input = input("Enter your input (or 'exit' to quit): ")
+            if user_input.lower() == 'exit':
+                print("Exiting...")
+                break
+            # Schedule the API request and continue
+            asyncio.create_task(send_request(session, user_input))
 
-        os.remove("output.mp3")
-
-if __name__ == '__main__':
-    tts_core = TTS_Core()
-    tts_core.tts_play("hello this is a test speech I am teaching CS3 lab and we gonna cover the topic of dynamic array with C++ today")
+# Run the asyncio event loop
+if __name__ == "__main__":
+    asyncio.run(main())
