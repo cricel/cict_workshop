@@ -1,10 +1,12 @@
 from mechlmm_core import MechLMMCore
+from db_core import DBCore
 
 from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
 mechlmm_core = MechLMMCore()
+db_core = DBCore()
 
 @app.route('/')
 def root():
@@ -35,6 +37,18 @@ def chat():
                     "type": result_type
                     })
 
+@app.route('/mechlmm/db/obj_info', methods=['POST'])
+def db_obj_info():
+    data = request.json
+    
+    if not data or 'name' not in data:
+        return jsonify({'error': 'Invalid Data'}), 400
+    
+    name = data['name']
+    pose_string = db_core.get_pose_by_name(name)
+    
+    return pose_string
+
 def main():
     app.run(host='0.0.0.0', port=5001)
 
@@ -43,3 +57,4 @@ if __name__ == '__main__':
 
 
 # curl -X POST "0.0.0.0:5001/mechlmm/chat" -H "Content-Type: application/json" -d '{"question":"hi"}'
+# curl -X POST "0.0.0.0:5001/mechlmm/db/obj_info" -H "Content-Type: application/json" -d '{"name":"drone"}'
