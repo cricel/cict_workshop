@@ -5,7 +5,7 @@ import os
 
 class MechLMMCore:
     def __init__(self, data_path = "../output"):
-        os.environ['GOOGLE_API_KEY'] = 'AIzaSyAFZ8PoiPo0MZ7qxNZ8nOUJbOpvDjhqLz0'
+        os.environ['GOOGLE_API_KEY'] = 'AIzaSyBnPowKJDdWTSQXlG8d9WgfamdjrsbqZPU'
         
         self.gemini_model = ChatGoogleGenerativeAI(
             model="gemini-1.5-pro",

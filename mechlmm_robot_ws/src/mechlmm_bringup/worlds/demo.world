@@ -539,66 +539,6 @@
       </link>
       <pose>-0.339797 -0.197715 0 0 -0 0</pose>
     </model>
-    <model name='gear_part'>
-      <link name='link'>
-        <inertial>
-          <pose>0 0 0.005875 0 -0 0</pose>
-          <mass>0.5</mass>
-          <inertia>
-            <ixx>0.000198203</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>0.000198203</iyy>
-            <iyz>0</iyz>
-            <izz>0.000384405</izz>
-          </inertia>
-        </inertial>
-        <collision name='collision'>
-          <pose>0 0 0.005875 0 -0 0</pose>
-          <geometry>
-            <cylinder>
-              <length>0.012</length>
-              <radius>0.0392125</radius>
-            </cylinder>
-          </geometry>
-          <surface>
-            <contact>
-              <ode>
-                <max_vel>0.1</max_vel>
-                <min_depth>0.001</min_depth>
-              </ode>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-          <max_contacts>10</max_contacts>
-        </collision>
-        <visual name='visual'>
-          <geometry>
-            <mesh>
-              <uri>model://gear_part/meshes/gear.dae</uri>
-              <scale>0.25 0.25 0.25</scale>
-            </mesh>
-          </geometry>
-          <material>
-            <script>
-              <uri>model://arm_part/materials/scripts</uri>
-              <uri>model://arm_part/materials/textures</uri>
-              <name>ArmPart/Diffuse</name>
-            </script>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-      <pose>-1.47012 -1.51134 0 0 -0 0</pose>
-    </model>
     <model name='Stop Sign'>
       <static>1</static>
       <link name='link'>
@@ -742,55 +682,6 @@
       </link>
       <pose>-1.45845 0.354261 0 0 -0 0</pose>
     </model>
-    <model name='bowl'>
-      <link name='link'>
-        <inertial>
-          <pose>0 0 0.0175 0 -0 0</pose>
-          <mass>0.1</mass>
-          <inertia>
-            <ixx>0.000250308</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>0.000250308</iyy>
-            <iyz>0</iyz>
-            <izz>0.0004802</izz>
-          </inertia>
-        </inertial>
-        <collision name='collision'>
-          <pose>0 0 0.0175 0 -0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.098</radius>
-              <length>0.035</length>
-            </cylinder>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='visual'>
-          <geometry>
-            <mesh>
-              <uri>model://bowl/meshes/bowl.dae</uri>
-            </mesh>
-          </geometry>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-      <pose>-1.78297 0.722435 0 0 -0 0</pose>
-    </model>
     <model name='beer_0'>
       <link name='link'>
         <pose>0 0 0.115 0 -0 0</pose>
@@ -893,16 +784,6 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-      <model name='bowl'>
-        <pose>-1.7908 0.848457 -4e-06 -3.4e-05 -3.9e-05 -0.060798</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>-1.7908 0.848457 -4e-06 -3.4e-05 -3.9e-05 -0.060798</pose>
-          <velocity>-0 0 0.000975 -0.08324 -0.08324 0</velocity>
-          <acceleration>-3.16265 3.16265 0.559363 1.53913 1.53913 0</acceleration>
-          <wrench>-0.316265 0.316265 0.055936 0 -0 0</wrench>
-        </link>
-      </model>
       <model name='car_wheel'>
         <pose>0.28805 -0.679993 -0.005001 0 9.6e-05 0</pose>
         <scale>1 1 1</scale>
@@ -931,16 +812,6 @@
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>-0 -0 -0 0 -0 0</acceleration>
           <wrench>-0 -0 -0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='gear_part'>
-        <pose>-1.47012 -1.51134 -0 -3e-06 3e-06 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>-1.47012 -1.51134 -0 -3e-06 3e-06 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>-0 -0 0 0 -0 0</acceleration>
-          <wrench>-0 -0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='ground_plane'>
