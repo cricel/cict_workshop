@@ -75,5 +75,5 @@ class DBCore:
 
 if __name__ == '__main__':
     db_core = DBCore()
-    # db_core.dummy_data_injection()
+    db_core.dummy_data_injection()
     print(db_core.get_pose_by_name("stop sign"))
