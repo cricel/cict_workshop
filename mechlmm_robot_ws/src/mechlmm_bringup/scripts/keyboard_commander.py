@@ -3,6 +3,9 @@ import requests
 import json
 from concurrent.futures import ThreadPoolExecutor
 
+import rospy
+from std_msgs.msg import String
+
 class KeyboardCommander:
     def __init__(self):
         self.api_url = "http://0.0.0.0:5001/mechlmm/chat"
@@ -10,8 +13,10 @@ class KeyboardCommander:
             "Content-Type": "application/json"
         }
 
-        self.command_list = []
         self.executor = ThreadPoolExecutor(max_workers=4)  # Adjust the number of workers as needed
+
+        rospy.init_node('mechlmm_commander', anonymous=True)
+        self.lmm_command_pub = rospy.Publisher('/mechlmm/command', String, queue_size=10)
 
     def send_request(self, _question):
         payload = {
@@ -44,7 +49,7 @@ class KeyboardCommander:
                 if response.status_code == 200:
                     print(colored(f"|AI Assistant Background|: {response.json()['result']}", "green"))
                     if(self.remove_whitespace(response.json()['result']) == "true"):
-                        self.command_list.append(_question)
+                        self.lmm_command_pub.publish(_question)
                     elif(self.remove_whitespace(response.json()['result']) == "false"):
                         pass
                     else:

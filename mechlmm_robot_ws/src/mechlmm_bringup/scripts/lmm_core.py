@@ -7,6 +7,7 @@ from cv_bridge import CvBridge, CvBridgeError
 import cv2
 
 from sensor_msgs.msg import Image
+from std_msgs.msg import String
 
 import time
 import threading
@@ -15,6 +16,8 @@ import base64
 
 from langchain_core.utils.function_calling import convert_to_openai_function
 import lmm_function_pool
+import function_pool_lmm_declaration
+from function_pool_definition import FunctionPoolDefinition
 
 class DataCommander:
     def __init__(self):
@@ -22,7 +25,12 @@ class DataCommander:
 
         self.bridge = CvBridge()
         
+        self.counter = 1
+
         self.base_image_sub = rospy.Subscriber("/camera/rgb/image_raw", Image, self.base_image_callback)
+        self.lmm_command_sub = rospy.Subscriber("/mechlmm/command", String, self.mechlmm_command_callback)
+
+        rospy.Timer(rospy.Duration(2), self.timer_callback)
 
         self.base_processed_image_pub = rospy.Publisher("/camera/rgb/image_raw/detection", Image)
 
@@ -33,11 +41,82 @@ class DataCommander:
 
         self.lmm_result = None
 
+        self.command_list = []
+
+        self.function_pool_definition = FunctionPoolDefinition()
+
+        self.llm_tools_map = {
+            "manipulation": self.function_pool_definition.manipulation,
+            "move_robot": self.function_pool_definition.move_robot,
+            "navigation": self.function_pool_definition.navigation,
+            "idle": self.function_pool_definition.idle,
+        }
+
+        
+
+    def timer_callback(self, msg):
+        self.lmm_command_trigger()
+
+    def lmm_command_trigger(self):
+        if(len(self.command_list) != 0):
+
+            if (self.latest_frame is None):
+                return
+
+            url = 'http://0.0.0.0:5001/mechlmm/chat'
+
+            base_image_url = self.opencv_frame_to_base64(self.latest_frame)
+
+            query = f"""
+                    Base on the information and image provided, what are the list of action should do to {self.command_list[-1]}
+
+                    This is a 2 wheel driving robot, the camera where image provided is mount in front of the robot
+
+                    if target is not found, then simply do nothing as idle
+                """
+
+            data = {
+                'question': query,
+                # 'schema': dict_schema,
+                'tag': 'head_callback',
+                'base_img': [base_image_url],
+                'tools': [convert_to_openai_function(function_pool_lmm_declaration.navigation),
+                          convert_to_openai_function(function_pool_lmm_declaration.manipulation),
+                          convert_to_openai_function(function_pool_lmm_declaration.move_robot),
+                          convert_to_openai_function(function_pool_lmm_declaration.idle)
+                          ]
+            }
+
+            response = requests.post(url, json=data)
+
+            print("-----------------------")
+            print(self.counter)
+            print("-----------------------")
+
+            if response.status_code == 200:
+                _result = response.json()
+                print('Success: \n', _result)
+                if(_result['type'] == 'tools'):
+                    for func in _result['result']:
+                        selected_tool = self.llm_tools_map[func['name'].lower()]
+                        selected_tool(func['args'])
+
+                    # self.lmm_command_pub.publish("llm send")
+            else:
+                print('Failed:', response.status_code, response.text)
+
+            self.img_query = False
+
+    def mechlmm_command_callback(self, data):
+        self.command_list.append(data.data)
+        print(self.command_list)
+
     def base_image_callback(self, data):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
 
             with self.lock:
+                self.counter += 1
                 self.latest_frame = cv_image.copy()
 
         except CvBridgeError as e:
@@ -100,26 +179,27 @@ class DataCommander:
                     frame = None
 
             if frame is not None:
-                self.lmm_result, _tag = self.image_context_analyzer(frame)
+                pass
+                # self.lmm_result, _tag = self.image_context_analyzer(frame)
 
-                for detected_object in self.lmm_result["objects"]:
-                    # Calculate bounding box coordinates
-                    ymin, xmin, ymax, xmax = [int(coord / 1000 * frame.shape[0 if j % 2 == 0 else 1]) for j, coord in enumerate(detected_object["position"])]
+                # for detected_object in self.lmm_result["objects"]:
+                #     # Calculate bounding box coordinates
+                #     ymin, xmin, ymax, xmax = [int(coord / 1000 * frame.shape[0 if j % 2 == 0 else 1]) for j, coord in enumerate(detected_object["position"])]
                     
-                    # Draw rectangle
-                    cv2.rectangle(frame, (ymin, xmin), (ymax, xmax), (0, 255, 0), 2)
+                #     # Draw rectangle
+                #     cv2.rectangle(frame, (ymin, xmin), (ymax, xmax), (0, 255, 0), 2)
                     
-                    # Add text label
-                    cv2.putText(frame, detected_object["name"], (ymin, xmin + 2),
-                                cv2.FONT_HERSHEY_SIMPLEX,
-                                0.9, 
-                                (255, 0, 0), 
-                                2)
+                #     # Add text label
+                #     cv2.putText(frame, detected_object["name"], (ymin, xmin + 2),
+                #                 cv2.FONT_HERSHEY_SIMPLEX,
+                #                 0.9, 
+                #                 (255, 0, 0), 
+                #                 2)
 
-                try:
-                    self.base_processed_image_pub.publish(self.bridge.cv2_to_imgmsg(frame, "bgr8"))
-                except CvBridgeError as e:
-                    print(e)
+                # try:
+                #     self.base_processed_image_pub.publish(self.bridge.cv2_to_imgmsg(frame, "bgr8"))
+                # except CvBridgeError as e:
+                #     print(e)
 
             time.sleep(0.1)
 
