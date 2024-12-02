@@ -20,8 +20,6 @@ class FunctionPoolDefinition:
         self.robot_cmd_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.lmm_cmd_publisher = rospy.Publisher('/base_cmd/input/lmm', Twist, queue_size=10)
 
-        self.mux_input = False
-
         rospy.sleep(0.5)
 
     def move_robot(self, _args):
@@ -47,17 +45,15 @@ class FunctionPoolDefinition:
             msg.linear.x = 0.0
             msg.angular.z = 0.0
 
-        if(self.mux_input):
-            self.lmm_cmd_publisher.publish(msg)
-        else:
-            self.robot_cmd_publisher.publish(msg)
 
-            time.sleep(1)
+        self.robot_cmd_publisher.publish(msg)
 
-            msg.linear.x = 0.0
-            msg.angular.z = 0.0
+        time.sleep(1)
 
-            self.robot_cmd_publisher.publish(msg)
+        msg.linear.x = 0.0
+        msg.angular.z = 0.0
+
+        self.robot_cmd_publisher.publish(msg)
         
         return msg
 

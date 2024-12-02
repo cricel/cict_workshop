@@ -8,6 +8,7 @@ import cv2
 
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
+from std_msgs.msg import Bool
 
 import time
 import threading
@@ -29,6 +30,7 @@ class DataCommander:
 
         self.base_image_sub = rospy.Subscriber("/camera/rgb/image_raw", Image, self.base_image_callback)
         self.lmm_command_sub = rospy.Subscriber("/mechlmm/command", String, self.mechlmm_command_callback)
+        self.cmd_vel_manual_sub = rospy.Subscriber("/cmd_vel/manual", Bool, self.cmd_vel_manual_callback)
 
         rospy.Timer(rospy.Duration(2), self.timer_callback)
 
@@ -52,6 +54,9 @@ class DataCommander:
         }
 
         
+    def cmd_vel_manual_callback(self, _msg):
+        if(_msg.data == True):
+            self.command_list = []
 
     def timer_callback(self, msg):
         self.lmm_command_trigger()
