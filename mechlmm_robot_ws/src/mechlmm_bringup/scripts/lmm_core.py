@@ -105,9 +105,8 @@ class DataCommander:
                 for detected_object in self.lmm_result["objects"]:
                     # Calculate bounding box coordinates
                     ymin, xmin, ymax, xmax = [int(coord / 1000 * frame.shape[0 if j % 2 == 0 else 1]) for j, coord in enumerate(detected_object["position"])]
-                    
                     # Draw rectangle
-                    cv2.rectangle(frame, (ymin, xmin), (ymax, xmax), (0, 255, 0), 2)
+                    cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
                     
                     # Add text label
                     cv2.putText(frame, detected_object["name"], (ymin, xmin + 2),

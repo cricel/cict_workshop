@@ -12,7 +12,7 @@ def root():
 
 @app.route('/mechlmm/', methods=['GET'])
 def mechlmm_api():
-    return jsonify({'content': 'welcome to mechlmm'})
+    return jsonify({'content': 'welcome to mechlmm'})   
 
 @app.route('/mechlmm/chat', methods=['POST'])
 def chat():
