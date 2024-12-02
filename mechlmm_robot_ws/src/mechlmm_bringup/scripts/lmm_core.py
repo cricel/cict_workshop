@@ -48,7 +48,6 @@ class DataCommander:
         self.llm_tools_map = {
             "manipulation": self.function_pool_definition.manipulation,
             "move_robot": self.function_pool_definition.move_robot,
-            "navigation": self.function_pool_definition.navigation,
             "idle": self.function_pool_definition.idle,
         }
 
@@ -80,7 +79,7 @@ class DataCommander:
                 # 'schema': dict_schema,
                 'tag': 'head_callback',
                 'base_img': [base_image_url],
-                'tools': [convert_to_openai_function(function_pool_lmm_declaration.navigation),
+                'tools': [
                           convert_to_openai_function(function_pool_lmm_declaration.manipulation),
                           convert_to_openai_function(function_pool_lmm_declaration.move_robot),
                           convert_to_openai_function(function_pool_lmm_declaration.idle)
