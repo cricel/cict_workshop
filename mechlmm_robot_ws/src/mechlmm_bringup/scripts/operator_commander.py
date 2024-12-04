@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from termcolor import colored
 import requests
 import json

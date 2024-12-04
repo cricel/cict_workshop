@@ -16,13 +16,13 @@ import requests
 import base64
 
 from langchain_core.utils.function_calling import convert_to_openai_function
-import lmm_function_pool
-import function_pool_lmm_declaration
-from function_pool_definition import FunctionPoolDefinition
+import function_pool_general as function_pool_general
+import function_pool_robot_declaration as function_pool_robot_declaration
+from function_pool_robot_definition import FunctionPoolDefinition
 
-class DataCommander:
+class RobotCore:
     def __init__(self):
-        rospy.init_node('data_commander', anonymous=True)
+        rospy.init_node('robot_core', anonymous=True)
 
         self.bridge = CvBridge()
         
@@ -85,9 +85,9 @@ class DataCommander:
                 'tag': 'head_callback',
                 'base_img': [base_image_url],
                 'tools': [
-                          convert_to_openai_function(function_pool_lmm_declaration.manipulation),
-                          convert_to_openai_function(function_pool_lmm_declaration.move_robot),
-                          convert_to_openai_function(function_pool_lmm_declaration.idle)
+                          convert_to_openai_function(function_pool_robot_declaration.manipulation),
+                          convert_to_openai_function(function_pool_robot_declaration.move_robot),
+                          convert_to_openai_function(function_pool_robot_declaration.idle)
                           ]
             }
 
@@ -134,7 +134,7 @@ class DataCommander:
         
         query = {
             "question": question,
-            "schema": convert_to_openai_function(lmm_function_pool.ObjectList),
+            "schema": convert_to_openai_function(function_pool_general.ObjectList),
             "base_img": [image_url],
             "tag": tag
         }
@@ -183,27 +183,27 @@ class DataCommander:
                     frame = None
 
             if frame is not None:
-                pass
-                # self.lmm_result, _tag = self.image_context_analyzer(frame)
+                # pass
+                self.lmm_result, _tag = self.image_context_analyzer(frame)
 
-                # for detected_object in self.lmm_result["objects"]:
-                #     # Calculate bounding box coordinates
-                #     ymin, xmin, ymax, xmax = [int(coord / 1000 * frame.shape[0 if j % 2 == 0 else 1]) for j, coord in enumerate(detected_object["position"])]
+                for detected_object in self.lmm_result["objects"]:
+                    # Calculate bounding box coordinates
+                    ymin, xmin, ymax, xmax = [int(coord / 1000 * frame.shape[0 if j % 2 == 0 else 1]) for j, coord in enumerate(detected_object["position"])]
                     
-                #     # Draw rectangle
-                #     cv2.rectangle(frame, (ymin, xmin), (ymax, xmax), (0, 255, 0), 2)
+                    # Draw rectangle
+                    cv2.rectangle(frame, (ymin, xmin), (ymax, xmax), (0, 255, 0), 2)
                     
-                #     # Add text label
-                #     cv2.putText(frame, detected_object["name"], (ymin, xmin + 2),
-                #                 cv2.FONT_HERSHEY_SIMPLEX,
-                #                 0.9, 
-                #                 (255, 0, 0), 
-                #                 2)
+                    # Add text label
+                    cv2.putText(frame, detected_object["name"], (ymin, xmin + 2),
+                                cv2.FONT_HERSHEY_SIMPLEX,
+                                0.9, 
+                                (255, 0, 0), 
+                                2)
 
-                # try:
-                #     self.base_processed_image_pub.publish(self.bridge.cv2_to_imgmsg(frame, "bgr8"))
-                # except CvBridgeError as e:
-                #     print(e)
+                try:
+                    self.base_processed_image_pub.publish(self.bridge.cv2_to_imgmsg(frame, "bgr8"))
+                except CvBridgeError as e:
+                    print(e)
 
             time.sleep(0.1)
 
@@ -215,7 +215,7 @@ class DataCommander:
 
 if __name__ == '__main__':
     try:
-        node = DataCommander()
+        node = RobotCore()
 
         node.run()
     except rospy.ROSInterruptException:
