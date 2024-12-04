@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 import rospy
-import tf
-# from tf.transformations import quaternion_from_euler, euler_from_quaternion
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
 
