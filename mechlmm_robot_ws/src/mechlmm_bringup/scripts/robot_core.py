@@ -14,6 +14,7 @@ import time
 import threading
 import requests
 import base64
+import numpy as np
 
 from langchain_core.utils.function_calling import convert_to_openai_function
 import function_pool_general as function_pool_general
@@ -184,23 +185,46 @@ class RobotCore:
 
             if frame is not None:
                 # pass
+
+                # Analyze the image context
                 self.lmm_result, _tag = self.image_context_analyzer(frame)
-
+                # Dictionary to store label colors
+                label_colors = {}
                 for detected_object in self.lmm_result["objects"]:
+                    # Get frame dimensions
+                    width, height = frame.shape[1], frame.shape[0]
                     # Calculate bounding box coordinates
-                    ymin, xmin, ymax, xmax = [int(coord / 1000 * frame.shape[0 if j % 2 == 0 else 1]) for j, coord in enumerate(detected_object["position"])]
-                    
-                    # Draw rectangle
-                    cv2.rectangle(frame, (ymin, xmin), (ymax, xmax), (0, 255, 0), 2)
-                    
-                    # Add text label
-                    cv2.putText(frame, detected_object["name"], (ymin, xmin + 2),
-                                cv2.FONT_HERSHEY_SIMPLEX,
-                                0.9, 
-                                (255, 0, 0), 
-                                2)
-
+                    ymin, xmin, ymax, xmax = detected_object["position"]
+                    x1 = int(xmin / 1000 * width)
+                    y1 = int(ymin / 1000 * height)
+                    x2 = int(xmax / 1000 * width)
+                    y2 = int(ymax / 1000 * height)
+                    # Assign random color if label is not already in the dictionary
+                    label = detected_object["name"]
+                    if label not in label_colors:
+                        color = np.random.randint(0, 256, (3,)).tolist()
+                        label_colors[label] = color
+                    else:
+                        color = label_colors[label]
+                    # Draw the bounding box
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+                    # Calculate text size and background coordinates
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    font_scale = 0.5
+                    font_thickness = 1
+                    text_size = cv2.getTextSize(label, font, font_scale, font_thickness)[0]
+                    text_bg_x1 = x1
+                    text_bg_y1 = y1 - text_size[1] - 5
+                    text_bg_x2 = x1 + text_size[0] + 8
+                    text_bg_y2 = y1
+                    # Draw text background rectangle
+                    cv2.rectangle(frame, (text_bg_x1, text_bg_y1), (text_bg_x2, text_bg_y2), color, -1)
+                    # Add the text label
+                    cv2.putText(
+                        frame, label, (x1 + 2, y1 - 5), font, font_scale, (255, 255, 255), font_thickness
+                    )
                 try:
+                    # Publish the processed image
                     self.base_processed_image_pub.publish(self.bridge.cv2_to_imgmsg(frame, "bgr8"))
                 except CvBridgeError as e:
                     print(e)

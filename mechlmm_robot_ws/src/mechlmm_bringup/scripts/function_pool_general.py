@@ -24,7 +24,7 @@ class Object(BaseModel):
     '''detail break down of item'''
 
     name: str = Field(..., description="the name of the object detected")
-    position: List[int] = Field(..., description="the bounding box coordinate of the object detected, such as ['top_left_x', 'top_left_y', 'bottom_right_x', 'bottom_right_y']")
+    position: List[int] = Field(..., description="Return bounding boxes for all objects in the image in the following format as ['ymin','xmin','ymax','xmax']")
     features: List[str] = Field(..., description="the key features of the object detected")
     # id: int = Field(..., description="id of this object")
 
