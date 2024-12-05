@@ -16,14 +16,22 @@ model = genai.GenerativeModel(model_name='gemini-1.5-pro')
 input_image = "basic_LMM/dog_bike_car.jpg"
 img = Image.open(input_image)  # Open the image using PIL
 
+#bad Prompt
+# response = model.generate_content([
+#     img,  # Pass the image as input
+#     ("Return bounding boxes for all objects in the image in the following format as")
+# ])
+
 # Generate content with an object detection prompt
 response = model.generate_content([
     img,  # Pass the image as input
     ("Return bounding boxes for all objects in the image in the following format as"
      " a list. \n [ymin, xmin, ymax, xmax, object_name]. If there are more than one object, return separate lists for each object")
 ])
-result = response.text  # Extract the text output containing bounding box data
 
+
+result = response.text  # Extract the text output containing bounding box data
+print(result)
 def parse_bounding_box(response):
     """
     Parse the bounding box response from the AI model.
